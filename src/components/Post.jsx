@@ -1,34 +1,37 @@
+import { format, formatDistanceToNow } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR'
+
 import { Avatar } from './Avatar';
 import { Comment } from './Comment';
 
 import styles from './Post.module.css';
 
-export function Post(){
+export function Post({author, content, publishedAt}){
+  const publishedDateFormatted = format(publishedAt, "d 'de' LLLL 'às' HH:mm'h'", { locale: ptBR})
+  const publishedDateRealtiveToNow = formatDistanceToNow(publishedAt, { locale: ptBR,  addSuffix: true }) //
   return (
     <article className={styles.post}>
       <header>
         <div className={styles.author}>
-          <Avatar src="https://github.com/andrellgrillo.png" />
+          <Avatar src={author.avatarUrl} />
           <div className={styles.authorInfo}>
-            <strong>André Grillo</strong>
-            <span>Web Developer</span>
+            <strong>{author.name}</strong>
+            <span>{author.role}</span>
           </div>
         </div>
 
 
-        <time title="30 de Junho às 14:50h" dateTime='2022-06-30 14:50:00'>Publicado há 1h</time>
+        <time title={publishedDateFormatted} dateTime={publishedAt.toISOString()}>{publishedDateRealtiveToNow}</time>
       </header>
 
       <div className={styles.content}>
-        <p>Fala galera 👏</p>
-        <p>Acabei de subir mais um projeto no meu portifólio. É um projeto  que fiz na NWL Return, 
-          evento da Rocketseat. O nome do projeto é DoctorCar 🚀</p>
-        <p><a href="#">planexcon.design/doctorcare</a></p>
-        <p>
-          <a href="#">#novoprojeto</a>
-          <a href="#"> #nlw</a>
-          <a href="#"> #rocketseat</a>
-        </p>
+        {content.map(line => {
+          if (line.type === 'paragraph') {
+            return <p>{line.content}</p>;
+          } else if (line.type ==='link') {
+            return <p><a href="#">{line.content}</a></p>
+          }
+        })}
       </div>
 
       <form className={styles.commentForm}>
